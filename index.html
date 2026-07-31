@@ -292,6 +292,11 @@ const DEFAULT_GOAL_COLOR = '#6366F1';
 const GRIP_ICON = `<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="6" r="1.6"/><circle cx="9" cy="12" r="1.6"/><circle cx="9" cy="18" r="1.6"/><circle cx="15" cy="6" r="1.6"/><circle cx="15" cy="12" r="1.6"/><circle cx="15" cy="18" r="1.6"/></svg>`;
 const PENCIL_ICON = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>`;
 
+const SYNC_BASE = 'https://revai-automations-n8n.kcyv7p.easypanel.host';
+const SYNC_SAVE_URL = SYNC_BASE + '/webhook/objetivos-save';
+const SYNC_LOAD_URL = SYNC_BASE + '/webhook/objetivos-load';
+const SYNC_TOKEN = 'AdRVNbQPmXCWpcNxTfeAyRb5HE5OxNfX';
+
 let goals = [];
 let importanceTypes = [];
 let filterStatus = 'todos';
@@ -309,43 +314,110 @@ function seedImportance(){
   ];
 }
 
+async function loadFromRemote(){
+  const res = await fetch(SYNC_LOAD_URL, {
+    headers: { 'X-Sync-Token': SYNC_TOKEN }
+  });
+  if(!res.ok) throw new Error('load failed: ' + res.status);
+  const text = await res.text();
+  if(!text || !text.trim()) return null;
+  let parsed = JSON.parse(text);
+  if(typeof parsed === 'string') parsed = JSON.parse(parsed);
+  return parsed;
+}
+
+async function saveToRemote(payloadObj){
+  const res = await fetch(SYNC_SAVE_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-Sync-Token': SYNC_TOKEN
+    },
+    body: JSON.stringify({ payload: JSON.stringify(payloadObj) })
+  });
+  if(!res.ok) throw new Error('save failed: ' + res.status);
+  return true;
+}
+
+let syncTimer = null;
+function scheduleRemoteSync(){
+  clearTimeout(syncTimer);
+  syncTimer = setTimeout(async ()=>{
+    try{
+      await saveToRemote({ goals, importanceTypes });
+      showSaveBanner(false);
+    }catch(e){
+      console.error('Error sincronizando con n8n', e);
+      showSaveBanner(true, 'No se pudo sincronizar con el servidor. Tus cambios se guardaron solo en este dispositivo por ahora.');
+    }
+  }, 500);
+}
+
 function loadAll(){
   try{
     const rawGoals = localStorage.getItem(STORAGE_KEY);
     goals = rawGoals ? JSON.parse(rawGoals) : [];
-    goals.forEach((g,i)=>{
-      if(typeof g.order !== 'number') g.order = i;
-      if(!g.color) g.color = PALETTE[0];
-      if(!('importanceId' in g)) g.importanceId = null;
-      if(!('editing' in g)) g.editing = false;
-      (g.subtasks||[]).forEach((s,j)=>{
-        if(typeof s.order !== 'number') s.order = j;
-        if(!('notes' in s)) s.notes = '';
-        if(!('open' in s)) s.open = false;
-      });
-    });
   }catch(e){
-    console.error('Error cargando objetivos', e);
+    console.error('Error cargando objetivos locales', e);
     goals = [];
   }
   try{
     const rawImp = localStorage.getItem(IMP_KEY);
     importanceTypes = rawImp ? JSON.parse(rawImp) : seedImportance();
-    if(!rawImp) saveImportance();
   }catch(e){
     importanceTypes = seedImportance();
   }
+
+  normalizeLoadedData();
   loaded = true;
   renderImportancePanel();
   renderNewGoalImportanceSelect();
   renderFilterImportanceSelect();
   render();
+
+  loadFromRemote().then(remote=>{
+    if(remote && (remote.goals || remote.importanceTypes)){
+      goals = remote.goals || [];
+      importanceTypes = (remote.importanceTypes && remote.importanceTypes.length) ? remote.importanceTypes : seedImportance();
+      normalizeLoadedData();
+      try{
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(goals));
+        localStorage.setItem(IMP_KEY, JSON.stringify(importanceTypes));
+      }catch(e){}
+      renderImportancePanel();
+      renderNewGoalImportanceSelect();
+      renderFilterImportanceSelect();
+      render();
+    }
+    showSaveBanner(false);
+  }).catch(e=>{
+    console.error('Error cargando desde n8n, usando copia local', e);
+    showSaveBanner(true, 'Sin conexión con el servidor. Mostrando la última copia guardada en este dispositivo.');
+  });
+}
+
+function normalizeLoadedData(){
+  goals.forEach((g,i)=>{
+    if(typeof g.order !== 'number') g.order = i;
+    if(!g.color) g.color = PALETTE[0];
+    if(!('importanceId' in g)) g.importanceId = null;
+    if(!('editing' in g)) g.editing = false;
+    (g.subtasks||[]).forEach((s,j)=>{
+      if(typeof s.order !== 'number') s.order = j;
+      if(!('notes' in s)) s.notes = '';
+      if(!('open' in s)) s.open = false;
+    });
+  });
 }
 
 let saveTimer = null;
-function showSaveBanner(show){
+function showSaveBanner(show, message){
   const el = document.getElementById('saveBanner');
   if(!el) return;
+  if(show && message){
+    const msgEl = el.querySelector('span:last-child');
+    if(msgEl) msgEl.textContent = message;
+  }
   el.classList.toggle('show', !!show);
 }
 function saveGoals(){
@@ -353,16 +425,17 @@ function saveGoals(){
   saveTimer = setTimeout(()=>{
     try{
       localStorage.setItem(STORAGE_KEY, JSON.stringify(goals));
-      showSaveBanner(false);
     }catch(e){
-      console.error('Error guardando', e);
-      showSaveBanner(true);
+      console.error('Error guardando localmente', e);
+      showSaveBanner(true, 'No se pudo guardar en este dispositivo (almacenamiento lleno o modo privado).');
     }
+    scheduleRemoteSync();
   }, 200);
 }
 function saveImportance(){
   try{ localStorage.setItem(IMP_KEY, JSON.stringify(importanceTypes)); }
-  catch(e){ console.error('Error guardando importancias', e); }
+  catch(e){ console.error('Error guardando importancias localmente', e); }
+  scheduleRemoteSync();
 }
 
 /* ---------- Goals ---------- */
