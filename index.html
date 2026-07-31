@@ -285,6 +285,7 @@ const IMP_KEY = 'objetivos_importance_types_v1';
 
 const PALETTE = ['#6366F1','#22D3EE','#34D399','#FBBF24','#FB7185','#A78BFA','#38BDF8','#94A3B8'];
 const IMP_PALETTE = ['#F87171','#FBBF24','#34D399','#38BDF8','#A78BFA','#94A3B8'];
+const DEFAULT_GOAL_COLOR = '#6366F1';
 
 const GRIP_ICON = `<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="6" r="1.6"/><circle cx="9" cy="12" r="1.6"/><circle cx="9" cy="18" r="1.6"/><circle cx="15" cy="6" r="1.6"/><circle cx="15" cy="12" r="1.6"/><circle cx="15" cy="18" r="1.6"/></svg>`;
 const PENCIL_ICON = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>`;
@@ -387,11 +388,10 @@ function toggleEdit(id){
   if(g) g.editing = !g.editing;
   render();
 }
-function saveEdit(id, title, color, importanceId){
+function saveEdit(id, title, importanceId){
   const g = goals.find(g=>g.id===id);
   if(!g) return;
   if(title.trim()) g.title = title.trim();
-  g.color = color;
   g.importanceId = importanceId || null;
   g.editing = false;
   saveGoals(); render();
@@ -594,6 +594,7 @@ function render(){
     const subCount = g.subtasks.length;
     const subDone = g.subtasks.filter(s=>s.done).length;
     const imp = getImportance(g.importanceId);
+    const goalColor = imp ? imp.color : DEFAULT_GOAL_COLOR;
     const isDone = g.status === 'completado';
     const sortedSubs = [...g.subtasks].sort((a,b)=>(a.order||0)-(b.order||0));
 
@@ -602,11 +603,11 @@ function render(){
     ).join('');
 
     return `
-    <div class="goal ${g.open ? 'open':''}" data-id="${g.id}" style="--goal-color:${g.color}">
+    <div class="goal ${g.open ? 'open':''}" data-id="${g.id}" style="--goal-color:${goalColor}">
       <div class="goal-head">
         ${unfiltered ? `<div class="drag-handle" data-drag="goal" title="Arrastrar para reordenar">${GRIP_ICON}</div>` : ''}
         <div class="ring" data-action="toggle">
-          ${isDone ? `<div class="check-ring" style="width:36px;height:36px;border-radius:50%;background:${g.color};display:flex;align-items:center;justify-content:center;">✓</div>` : ringSvg(pct, g.color)}
+          ${isDone ? `<div class="check-ring" style="width:36px;height:36px;border-radius:50%;background:${goalColor};display:flex;align-items:center;justify-content:center;">✓</div>` : ringSvg(pct, goalColor)}
         </div>
         <div class="goal-title-wrap" data-action="toggle">
           <div class="goal-title ${isDone?'done':''}">${escapeHtml(g.title)}</div>
@@ -628,12 +629,6 @@ function render(){
           <div class="edit-field">
             <label>Nombre</label>
             <input type="text" data-action="edit-title" value="${escapeHtml(g.title)}" maxlength="140">
-          </div>
-          <div class="edit-field">
-            <label>Color</label>
-            <div class="color-swatches" data-action="edit-color-wrap">
-              ${PALETTE.map(c=>`<div class="swatch ${c===g.color?'selected':''}" style="background:${c}" data-color="${c}"></div>`).join('')}
-            </div>
           </div>
           <div class="edit-field">
             <label>Importancia</label>
@@ -750,20 +745,12 @@ function attachHandlers(){
 
     const editForm = goalEl.querySelector('.edit-form');
     if(editForm){
-      let chosenColor = goals.find(g=>g.id===gid).color;
-      editForm.querySelectorAll('.swatch').forEach(sw=>{
-        sw.addEventListener('click', ()=>{
-          chosenColor = sw.getAttribute('data-color');
-          editForm.querySelectorAll('.swatch').forEach(s=>s.classList.remove('selected'));
-          sw.classList.add('selected');
-        });
-      });
       const saveBtn = goalEl.querySelector('[data-action="save-edit"]');
       if(saveBtn){
         saveBtn.addEventListener('click', ()=>{
           const title = editForm.querySelector('[data-action="edit-title"]').value;
           const importanceId = editForm.querySelector('[data-action="edit-importance"]').value;
-          saveEdit(gid, title, chosenColor, importanceId);
+          saveEdit(gid, title, importanceId);
         });
       }
     }
