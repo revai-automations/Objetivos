@@ -494,11 +494,23 @@ function reorderGoalsFromDom(ids){
 }
 
 /* ---------- Subtasks ---------- */
+function applyAutoStatus(g){
+  const total = g.subtasks.length;
+  if(total === 0){
+    g.status = 'pendiente';
+    return;
+  }
+  const doneCount = g.subtasks.filter(s=>s.done).length;
+  if(doneCount === 0) g.status = 'pendiente';
+  else if(doneCount === total) g.status = 'completado';
+  else g.status = 'en progreso';
+}
 function addSubtask(id, text){
   const g = goals.find(g=>g.id===id);
   if(!g || !text.trim()) return;
   const maxOrder = g.subtasks.reduce((m,s)=>Math.max(m,s.order||0), -1);
   g.subtasks.push({id:uid(), text:text.trim(), done:false, notes:'', open:false, order:maxOrder+1});
+  applyAutoStatus(g);
   saveGoals(); render();
 }
 function toggleSubtask(gid, sid){
@@ -506,12 +518,14 @@ function toggleSubtask(gid, sid){
   if(!g) return;
   const s = g.subtasks.find(s=>s.id===sid);
   if(s) s.done = !s.done;
+  applyAutoStatus(g);
   saveGoals(); render();
 }
 function removeSubtask(gid, sid){
   const g = goals.find(g=>g.id===gid);
   if(!g) return;
   g.subtasks = g.subtasks.filter(s=>s.id!==sid);
+  applyAutoStatus(g);
   saveGoals(); render();
 }
 function toggleSubtaskNote(gid, sid){
