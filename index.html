@@ -30,63 +30,42 @@
   *{box-sizing:border-box;}
   html,body{margin:0;padding:0;}
   body{
-    background:var(--bg);
-    color:var(--text);
-    font-family:'Inter',sans-serif;
-    -webkit-font-smoothing:antialiased;
-    min-height:100vh;
-    padding-bottom:64px;
+    background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;
+    -webkit-font-smoothing:antialiased;min-height:100vh;padding-bottom:64px;
   }
-  .wrap{
-    max-width:640px;
-    margin:0 auto;
-    padding:28px 18px 40px;
-  }
-  header{
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    margin-bottom:22px;
-  }
+  .wrap{max-width:640px;margin:0 auto;padding:28px 18px 40px;}
+  header{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px;}
   .brand{display:flex;align-items:center;gap:10px;}
-  .mark{
-    width:30px;height:30px;
-    border-radius:9px;
-    background:conic-gradient(from 220deg, var(--indigo), var(--cyan), var(--indigo));
-    position:relative;flex:none;
-  }
+  .mark{width:30px;height:30px;border-radius:9px;background:conic-gradient(from 220deg, var(--indigo), var(--cyan), var(--indigo));position:relative;flex:none;}
   .mark::after{content:'';position:absolute;inset:5px;background:var(--bg);border-radius:6px;}
   h1{font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:700;margin:0;letter-spacing:-0.02em;}
   .header-right{display:flex;align-items:center;gap:10px;}
   .count{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums;}
   .icon-btn{
-    flex:none;width:34px;height:34px;border-radius:10px;
-    background:var(--surface);border:1px solid var(--line);
-    color:var(--muted);display:flex;align-items:center;justify-content:center;
-    cursor:pointer;font-size:15px;
+    flex:none;width:34px;height:34px;border-radius:10px;background:var(--surface);border:1px solid var(--line);
+    color:var(--muted);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:15px;
   }
   .icon-btn:hover{color:var(--text);border-color:var(--indigo);}
   .icon-btn.active{color:var(--cyan);border-color:var(--cyan);}
 
-  .add-box{display:flex;gap:8px;margin-bottom:16px;}
-  .add-box input{
-    flex:1;background:var(--surface);border:1px solid var(--line);color:var(--text);
+  .add-box{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;}
+  .add-box input[type="text"]{
+    flex:1 1 160px;min-width:0;background:var(--surface);border:1px solid var(--line);color:var(--text);
     padding:13px 14px;border-radius:12px;font-size:15px;font-family:'Inter',sans-serif;
   }
   .add-box input::placeholder{color:var(--muted);}
   .add-box input:focus{outline:none;border-color:var(--indigo);}
+  .add-box select{
+    flex:0 0 auto;background:var(--surface);border:1px solid var(--line);color:var(--text);
+    padding:0 10px;border-radius:12px;font-size:13.5px;font-family:'Inter',sans-serif;
+  }
   .add-box button{
     background:var(--indigo-dim);border:none;color:white;padding:0 18px;border-radius:12px;
     font-size:14px;font-weight:600;font-family:'Inter',sans-serif;cursor:pointer;
   }
   .add-box button:active{transform:scale(0.97);}
 
-  /* Importance panel */
-  .imp-panel{
-    display:none;
-    background:var(--surface);border:1px solid var(--line);border-radius:14px;
-    padding:14px;margin-bottom:16px;
-  }
+  .imp-panel{display:none;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:16px;}
   .imp-panel.show{display:block;}
   .imp-panel-title{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:600;margin-bottom:10px;}
   .imp-row{display:flex;align-items:center;gap:10px;padding:6px 0;}
@@ -101,55 +80,46 @@
   }
   .imp-add input[type="text"]:focus{outline:none;border-color:var(--indigo);}
   .color-swatches{display:flex;gap:6px;flex-wrap:wrap;}
-  .swatch{
-    width:22px;height:22px;border-radius:50%;cursor:pointer;border:2px solid transparent;
-    flex:none;
-  }
+  .swatch{width:22px;height:22px;border-radius:50%;cursor:pointer;border:2px solid transparent;flex:none;}
   .swatch.selected{border-color:var(--text);}
-  .imp-add button{
-    background:var(--surface-3);border:1px solid var(--line);color:var(--cyan);
-    padding:8px 12px;border-radius:9px;font-size:13px;cursor:pointer;flex:none;
-  }
+  .imp-add button{background:var(--surface-3);border:1px solid var(--line);color:var(--cyan);padding:8px 12px;border-radius:9px;font-size:13px;cursor:pointer;flex:none;}
 
-  .filters{display:flex;gap:6px;margin-bottom:14px;overflow-x:auto;}
-  .chip{
-    font-size:12px;padding:7px 12px;border-radius:999px;border:1px solid var(--line);
-    color:var(--muted);background:transparent;cursor:pointer;white-space:nowrap;
-    font-family:'Inter',sans-serif;
+  .filters-row{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;}
+  .filter-select{
+    flex:0 0 auto;width:auto;background:var(--surface);border:1px solid var(--line);color:var(--text);
+    padding:8px 30px 8px 14px;border-radius:999px;font-size:12.5px;font-family:'Inter',sans-serif;
+    -webkit-appearance:none;appearance:none;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%238B93A6' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat:no-repeat;
+    background-position:right 12px center;
   }
-  .chip.active{background:var(--surface-2);color:var(--text);border-color:var(--indigo);}
+  .filter-select:focus{outline:none;border-color:var(--indigo);}
+  .filter-select:hover{border-color:var(--indigo);}
 
-  .order-hint{
-    font-size:11.5px;color:var(--muted);margin-bottom:14px;
-    display:flex;align-items:center;gap:6px;
-  }
+  .order-hint{font-size:11.5px;color:var(--muted);margin-bottom:14px;display:flex;align-items:center;gap:6px;}
 
   .goal{
-    background:var(--surface);border:1px solid var(--line);border-radius:16px;
-    margin-bottom:12px;overflow:hidden;border-left:3px solid var(--goal-color, var(--indigo));
+    background:var(--surface);border:1px solid var(--line);border-radius:16px;margin-bottom:12px;
+    overflow:hidden;border-left:3px solid var(--goal-color, var(--indigo));
   }
-  .goal-head{display:flex;align-items:center;gap:10px;padding:14px 14px;cursor:pointer;}
-  .reorder-col{display:flex;flex-direction:column;gap:2px;flex:none;}
-  .reorder-btn{
-    background:none;border:none;color:var(--muted);cursor:pointer;font-size:11px;
-    line-height:1;padding:2px 3px;
+  .goal.dragging{opacity:0.55;box-shadow:0 8px 20px rgba(0,0,0,0.4);}
+  .goal-head{display:flex;align-items:center;gap:10px;padding:14px 14px;}
+  .drag-handle{
+    flex:none;color:var(--muted);cursor:grab;touch-action:none;user-select:none;
+    padding:6px 2px;display:flex;align-items:center;
   }
-  .reorder-btn:hover{color:var(--text);}
-  .reorder-btn:disabled{opacity:0.25;cursor:default;}
-  .reorder-btn:disabled:hover{color:var(--muted);}
+  .drag-handle:active{cursor:grabbing;color:var(--text);}
 
   .ring{flex:none;width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;position:relative;}
   .ring svg{transform:rotate(-90deg);}
   .ring-bg{stroke:var(--surface-2);}
   .ring-fg{stroke:var(--goal-color, var(--indigo));transition:stroke-dashoffset .3s ease;}
-  .goal-title-wrap{flex:1;min-width:0;}
+  .check-ring{color:white;font-size:16px;font-weight:700;}
+  .goal-title-wrap{flex:1;min-width:0;cursor:pointer;}
   .goal-title{font-family:'Space Grotesk',sans-serif;font-size:15.5px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
   .goal-title.done{color:var(--muted);text-decoration:line-through;}
   .goal-meta{font-size:11.5px;color:var(--muted);margin-top:3px;display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
-  .imp-badge{
-    font-size:10.5px;padding:2px 7px;border-radius:999px;font-weight:600;
-    display:inline-flex;align-items:center;gap:4px;
-  }
+  .imp-badge{font-size:10.5px;padding:2px 7px;border-radius:999px;font-weight:600;display:inline-flex;align-items:center;gap:4px;}
   .status-select{
     flex:none;background:var(--surface-2);border:1px solid var(--line);color:var(--text);
     font-size:11.5px;font-family:'Inter',sans-serif;padding:6px 8px;border-radius:9px;
@@ -159,7 +129,7 @@
   .status-select.en-progreso{color:var(--cyan);border-color:rgba(34,211,238,0.3);}
   .status-select.completado{color:var(--done);border-color:rgba(52,211,153,0.3);}
 
-  .chevron{flex:none;color:var(--muted);transition:transform .2s ease;font-size:12px;}
+  .chevron{flex:none;color:var(--muted);transition:transform .2s ease;font-size:12px;cursor:pointer;}
   .goal.open .chevron{transform:rotate(90deg);}
 
   .goal-body{display:none;padding:0 16px 16px;border-top:1px solid var(--line);}
@@ -167,15 +137,10 @@
 
   .section-label{
     font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);
-    margin:14px 0 8px;font-weight:600;display:flex;align-items:center;justify-content:space-between;
+    margin:14px 0 8px;font-weight:600;
   }
-  .link-btn{background:none;border:none;color:var(--cyan);font-size:11.5px;cursor:pointer;font-family:'Inter',sans-serif;}
-  .link-btn:hover{text-decoration:underline;}
 
-  /* Edit form */
-  .edit-form{
-    background:var(--surface-2);border:1px solid var(--line);border-radius:12px;padding:12px;margin:10px 0 4px;
-  }
+  .edit-form{background:var(--surface-2);border:1px solid var(--line);border-radius:12px;padding:12px;margin:10px 0 4px;}
   .edit-field{margin-bottom:10px;}
   .edit-field label{font-size:11px;color:var(--muted);display:block;margin-bottom:5px;}
   .edit-field input[type="text"]{
@@ -187,16 +152,14 @@
     width:100%;background:var(--surface-3);border:1px solid var(--line);color:var(--text);
     padding:9px 10px;border-radius:9px;font-size:14px;font-family:'Inter',sans-serif;
   }
-  .edit-actions{display:flex;gap:8px;margin-top:12px;}
-  .btn-save{background:var(--indigo-dim);border:none;color:white;padding:9px 16px;border-radius:9px;font-size:13.5px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;}
-  .btn-cancel{background:none;border:1px solid var(--line);color:var(--muted);padding:9px 16px;border-radius:9px;font-size:13.5px;cursor:pointer;font-family:'Inter',sans-serif;}
 
-  .subtask{
-    display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--line);
-  }
-  .subtask:last-of-type{border-bottom:none;}
-  .sub-reorder{display:flex;flex-direction:column;gap:1px;flex:none;}
-  .sub-reorder .reorder-btn{font-size:9px;padding:1px 2px;}
+  .subtasks-list{}
+  .subtask-item{}
+  .subtask-item.dragging{opacity:0.55;}
+  .subtask{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--line);}
+  .subtask-item:last-child .subtask{border-bottom:none;}
+  .sub-drag-handle{flex:none;color:var(--muted);cursor:grab;touch-action:none;user-select:none;display:flex;align-items:center;padding:2px;}
+  .sub-drag-handle:active{cursor:grabbing;color:var(--text);}
   .subtask-check{
     flex:none;width:19px;height:19px;border-radius:6px;border:1.5px solid var(--line);cursor:pointer;
     display:flex;align-items:center;justify-content:center;font-size:12px;color:transparent;
@@ -205,14 +168,13 @@
   .subtask-text{flex:1;font-size:14px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
   .subtask-text.checked{color:var(--muted);text-decoration:line-through;}
   .sub-note-toggle{
-    flex:none;background:none;border:none;color:var(--muted);cursor:pointer;font-size:13px;padding:2px 4px;
+    flex:none;background:none;border:none;color:var(--muted);cursor:pointer;padding:4px;
+    display:flex;align-items:center;justify-content:center;
   }
   .sub-note-toggle.has-note{color:var(--cyan);}
   .del-btn{flex:none;color:var(--muted);background:none;border:none;font-size:16px;cursor:pointer;padding:2px 4px;}
   .del-btn:hover{color:var(--danger);}
-  .subtask-notes{
-    padding:6px 0 10px 27px;
-  }
+  .subtask-notes{padding:6px 0 10px 44px;}
   .subtask-notes textarea{
     width:100%;background:var(--surface-2);border:1px solid var(--line);color:var(--text);
     border-radius:9px;padding:8px 10px;font-size:13px;font-family:'Inter',sans-serif;resize:vertical;min-height:48px;
@@ -226,6 +188,7 @@
   }
   .add-sub input:focus{outline:none;border-color:var(--indigo);}
   .add-sub button{background:var(--surface-2);border:1px solid var(--line);color:var(--cyan);padding:0 14px;border-radius:9px;font-size:13px;cursor:pointer;}
+  .add-sub-hint{font-size:11.5px;color:var(--muted);margin-top:8px;font-style:italic;}
 
   textarea.notes{
     width:100%;background:var(--surface-2);border:1px solid var(--line);color:var(--text);
@@ -233,10 +196,13 @@
   }
   textarea.notes:focus{outline:none;border-color:var(--indigo);}
 
-  .goal-footer{display:flex;justify-content:space-between;align-items:center;margin-top:12px;}
+  .goal-footer{display:flex;justify-content:space-between;align-items:center;margin-top:14px;gap:8px;}
   .remove-goal{font-size:12px;color:var(--muted);background:none;border:none;cursor:pointer;}
   .remove-goal:hover{color:var(--danger);}
   .edit-toggle-btn{font-size:12px;color:var(--cyan);background:none;border:none;cursor:pointer;}
+  .btn-save{background:var(--indigo-dim);border:none;color:white;padding:9px 16px;border-radius:9px;font-size:13.5px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;}
+  .btn-cancel{background:none;border:1px solid var(--line);color:var(--muted);padding:9px 16px;border-radius:9px;font-size:13.5px;cursor:pointer;font-family:'Inter',sans-serif;}
+  .edit-footer-actions{display:flex;gap:8px;width:100%;justify-content:flex-end;}
 
   .empty{text-align:center;padding:60px 20px;color:var(--muted);}
   .empty .mark{margin:0 auto 14px;}
@@ -287,17 +253,23 @@
 
   <div class="add-box">
     <input id="newGoalInput" type="text" placeholder="Nuevo objetivo…" maxlength="140">
+    <select id="newGoalImportance"></select>
     <button id="addGoalBtn">Añadir</button>
   </div>
 
-  <div class="filters" id="filters">
-    <button class="chip active" data-filter="todos">Todos</button>
-    <button class="chip" data-filter="pendiente">Pendiente</button>
-    <button class="chip" data-filter="en progreso">En progreso</button>
-    <button class="chip" data-filter="completado">Completado</button>
+  <div class="filters-row">
+    <select class="filter-select" id="filterStatus">
+      <option value="todos">Todos los estados</option>
+      <option value="pendiente">Pendiente</option>
+      <option value="en progreso">En progreso</option>
+      <option value="completado">Completado</option>
+    </select>
+    <select class="filter-select" id="filterImportance">
+      <option value="todas">Toda importancia</option>
+    </select>
   </div>
 
-  <div class="order-hint" id="orderHint">Usa las flechas ↑↓ para reordenar objetivos y subtareas.</div>
+  <div class="order-hint" id="orderHint">Mantén pulsado ⠿ y arrastra para reordenar.</div>
 
   <div id="goalsList"></div>
   <div class="empty" id="emptyState" style="display:none;">
@@ -314,9 +286,13 @@ const IMP_KEY = 'objetivos_importance_types_v1';
 const PALETTE = ['#6366F1','#22D3EE','#34D399','#FBBF24','#FB7185','#A78BFA','#38BDF8','#94A3B8'];
 const IMP_PALETTE = ['#F87171','#FBBF24','#34D399','#38BDF8','#A78BFA','#94A3B8'];
 
+const GRIP_ICON = `<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="6" r="1.6"/><circle cx="9" cy="12" r="1.6"/><circle cx="9" cy="18" r="1.6"/><circle cx="15" cy="6" r="1.6"/><circle cx="15" cy="12" r="1.6"/><circle cx="15" cy="18" r="1.6"/></svg>`;
+const PENCIL_ICON = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>`;
+
 let goals = [];
 let importanceTypes = [];
-let currentFilter = 'todos';
+let filterStatus = 'todos';
+let filterImportance = 'todas';
 let loaded = false;
 let selectedImpColor = IMP_PALETTE[0];
 
@@ -338,6 +314,7 @@ function loadAll(){
       if(typeof g.order !== 'number') g.order = i;
       if(!g.color) g.color = PALETTE[0];
       if(!('importanceId' in g)) g.importanceId = null;
+      if(!('editing' in g)) g.editing = false;
       (g.subtasks||[]).forEach((s,j)=>{
         if(typeof s.order !== 'number') s.order = j;
         if(!('notes' in s)) s.notes = '';
@@ -357,6 +334,8 @@ function loadAll(){
   }
   loaded = true;
   renderImportancePanel();
+  renderNewGoalImportanceSelect();
+  renderFilterImportanceSelect();
   render();
 }
 
@@ -379,19 +358,16 @@ function saveGoals(){
   }, 200);
 }
 function saveImportance(){
-  try{
-    localStorage.setItem(IMP_KEY, JSON.stringify(importanceTypes));
-  }catch(e){
-    console.error('Error guardando importancias', e);
-  }
+  try{ localStorage.setItem(IMP_KEY, JSON.stringify(importanceTypes)); }
+  catch(e){ console.error('Error guardando importancias', e); }
 }
 
 /* ---------- Goals ---------- */
-function addGoal(title){
+function addGoal(title, importanceId){
   const maxOrder = goals.reduce((m,g)=>Math.max(m,g.order||0), -1);
   goals.unshift({
     id: uid(), title: title.trim(), status:'pendiente', notes:'',
-    open:true, color: PALETTE[0], importanceId: null,
+    open:true, color: PALETTE[0], importanceId: importanceId || null,
     order: maxOrder + 1, subtasks: [], editing:false
   });
   normalizeOrders();
@@ -434,14 +410,11 @@ function normalizeOrders(){
   goals.sort((a,b)=>(a.order||0)-(b.order||0));
   goals.forEach((g,i)=>g.order=i);
 }
-function moveGoal(id, dir){
-  normalizeOrders();
-  const idx = goals.findIndex(g=>g.id===id);
-  const swapIdx = idx + dir;
-  if(idx<0 || swapIdx<0 || swapIdx>=goals.length) return;
-  const tmp = goals[idx].order;
-  goals[idx].order = goals[swapIdx].order;
-  goals[swapIdx].order = tmp;
+function reorderGoalsFromDom(ids){
+  ids.forEach((id, idx)=>{
+    const g = goals.find(g=>g.id===id);
+    if(g) g.order = idx;
+  });
   saveGoals(); render();
 }
 
@@ -480,17 +453,13 @@ function setSubtaskNote(gid, sid, val){
   if(s) s.notes = val;
   saveGoals();
 }
-function moveSubtask(gid, sid, dir){
+function reorderSubtasksFromDom(gid, ids){
   const g = goals.find(g=>g.id===gid);
   if(!g) return;
-  g.subtasks.sort((a,b)=>(a.order||0)-(b.order||0));
-  g.subtasks.forEach((s,i)=>s.order=i);
-  const idx = g.subtasks.findIndex(s=>s.id===sid);
-  const swapIdx = idx + dir;
-  if(idx<0 || swapIdx<0 || swapIdx>=g.subtasks.length) return;
-  const tmp = g.subtasks[idx].order;
-  g.subtasks[idx].order = g.subtasks[swapIdx].order;
-  g.subtasks[swapIdx].order = tmp;
+  ids.forEach((id, idx)=>{
+    const s = g.subtasks.find(s=>s.id===id);
+    if(s) s.order = idx;
+  });
   saveGoals(); render();
 }
 
@@ -498,12 +467,21 @@ function moveSubtask(gid, sid, dir){
 function addImportanceType(name, color){
   if(!name.trim()) return;
   importanceTypes.push({id:uid(), name:name.trim(), color});
-  saveImportance(); renderImportancePanel(); render();
+  saveImportance();
+  renderImportancePanel();
+  renderNewGoalImportanceSelect();
+  renderFilterImportanceSelect();
+  render();
 }
 function removeImportanceType(id){
   importanceTypes = importanceTypes.filter(t=>t.id!==id);
   goals.forEach(g=>{ if(g.importanceId===id) g.importanceId=null; });
-  saveImportance(); saveGoals(); renderImportancePanel(); render();
+  saveImportance(); saveGoals();
+  renderImportancePanel();
+  renderNewGoalImportanceSelect();
+  renderFilterImportanceSelect();
+  if(filterImportance===id) filterImportance='todas';
+  render();
 }
 function getImportance(id){
   return importanceTypes.find(t=>t.id===id) || null;
@@ -529,7 +507,7 @@ function escapeHtml(str){
   return (str||'').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 }
 
-/* ---------- Render: importance panel ---------- */
+/* ---------- Render: importance panel & selects ---------- */
 function renderImportancePanel(){
   const list = document.getElementById('impList');
   if(importanceTypes.length === 0){
@@ -549,7 +527,6 @@ function renderImportancePanel(){
       });
     });
   }
-
   const swatchWrap = document.getElementById('impColorSwatches');
   swatchWrap.innerHTML = IMP_PALETTE.map(c => `
     <div class="swatch ${c===selectedImpColor?'selected':''}" style="background:${c}" data-color="${c}"></div>
@@ -560,6 +537,20 @@ function renderImportancePanel(){
       renderImportancePanel();
     });
   });
+}
+function renderNewGoalImportanceSelect(){
+  const sel = document.getElementById('newGoalImportance');
+  sel.innerHTML = `<option value="">Sin importancia</option>` +
+    importanceTypes.map(t=>`<option value="${t.id}">${escapeHtml(t.name)}</option>`).join('');
+}
+function renderFilterImportanceSelect(){
+  const sel = document.getElementById('filterImportance');
+  const prevValue = filterImportance;
+  sel.innerHTML = `<option value="todas">Toda importancia</option><option value="__none__">Sin importancia</option>` +
+    importanceTypes.map(t=>`<option value="${t.id}">${escapeHtml(t.name)}</option>`).join('');
+  const stillExists = prevValue==='todas' || prevValue==='__none__' || importanceTypes.some(t=>t.id===prevValue);
+  sel.value = stillExists ? prevValue : 'todas';
+  filterImportance = sel.value;
 }
 
 /* ---------- Render: goals ---------- */
@@ -573,11 +564,18 @@ function render(){
 
   normalizeOrders();
   const sortedGoals = [...goals].sort((a,b)=>(a.order||0)-(b.order||0));
-  const filtered = currentFilter === 'todos' ? sortedGoals : sortedGoals.filter(g=>g.status===currentFilter);
+  const unfiltered = filterStatus === 'todos' && filterImportance === 'todas';
+  const filtered = sortedGoals.filter(g=>{
+    const statusOk = filterStatus === 'todos' || g.status === filterStatus;
+    const impOk = filterImportance === 'todas' ? true :
+      filterImportance === '__none__' ? !g.importanceId :
+      g.importanceId === filterImportance;
+    return statusOk && impOk;
+  });
 
   const doneCount = goals.filter(g=>g.status==='completado').length;
   countLabel.textContent = goals.length ? `${doneCount}/${goals.length} completados` : '';
-  orderHint.style.display = (currentFilter === 'todos' && goals.length > 1) ? 'flex' : 'none';
+  orderHint.style.display = (unfiltered && goals.length > 1) ? 'flex' : 'none';
 
   if(goals.length === 0){
     list.innerHTML = '';
@@ -587,18 +585,16 @@ function render(){
   empty.style.display = 'none';
 
   if(filtered.length === 0){
-    list.innerHTML = `<div class="empty"><p>No hay objetivos en este filtro.</p></div>`;
+    list.innerHTML = `<div class="empty"><p>No hay objetivos con estos filtros.</p></div>`;
     return;
   }
 
-  list.innerHTML = filtered.map((g, visIdx) => {
+  list.innerHTML = filtered.map(g => {
     const pct = progressOf(g);
     const subCount = g.subtasks.length;
     const subDone = g.subtasks.filter(s=>s.done).length;
     const imp = getImportance(g.importanceId);
-    const canReorder = currentFilter === 'todos';
-    const isFirst = visIdx === 0;
-    const isLast = visIdx === filtered.length - 1;
+    const isDone = g.status === 'completado';
     const sortedSubs = [...g.subtasks].sort((a,b)=>(a.order||0)-(b.order||0));
 
     const impOptions = importanceTypes.map(t =>
@@ -608,19 +604,15 @@ function render(){
     return `
     <div class="goal ${g.open ? 'open':''}" data-id="${g.id}" style="--goal-color:${g.color}">
       <div class="goal-head">
-        ${canReorder ? `
-        <div class="reorder-col">
-          <button class="reorder-btn" data-action="move-up" ${isFirst?'disabled':''}>▲</button>
-          <button class="reorder-btn" data-action="move-down" ${isLast?'disabled':''}>▼</button>
-        </div>` : ''}
-        <div data-action="toggle" style="display:flex;align-items:center;gap:12px;flex:1;min-width:0;cursor:pointer;">
-          <div class="ring">${ringSvg(pct, g.color)}</div>
-          <div class="goal-title-wrap">
-            <div class="goal-title ${g.status==='completado'?'done':''}">${escapeHtml(g.title)}</div>
-            <div class="goal-meta">
-              ${imp ? `<span class="imp-badge" style="background:${imp.color}22;color:${imp.color}">${escapeHtml(imp.name)}</span>` : ''}
-              <span>${subCount ? `${subDone}/${subCount} subtareas` : 'Sin subtareas'}</span>
-            </div>
+        ${unfiltered ? `<div class="drag-handle" data-drag="goal" title="Arrastrar para reordenar">${GRIP_ICON}</div>` : ''}
+        <div class="ring" data-action="toggle">
+          ${isDone ? `<div class="check-ring" style="width:36px;height:36px;border-radius:50%;background:${g.color};display:flex;align-items:center;justify-content:center;">✓</div>` : ringSvg(pct, g.color)}
+        </div>
+        <div class="goal-title-wrap" data-action="toggle">
+          <div class="goal-title ${isDone?'done':''}">${escapeHtml(g.title)}</div>
+          <div class="goal-meta">
+            ${imp ? `<span class="imp-badge" style="background:${imp.color}22;color:${imp.color}">${escapeHtml(imp.name)}</span>` : ''}
+            <span>${subCount ? `${subDone}/${subCount} subtareas` : 'Sin subtareas'}</span>
           </div>
         </div>
         <select class="status-select ${statusClass(g.status)}" data-action="status">
@@ -628,7 +620,7 @@ function render(){
           <option value="en progreso" ${g.status==='en progreso'?'selected':''}>En progreso</option>
           <option value="completado" ${g.status==='completado'?'selected':''}>Completado</option>
         </select>
-        <div class="chevron" data-action="toggle" style="cursor:pointer;">▶</div>
+        <div class="chevron" data-action="toggle">▶</div>
       </div>
       <div class="goal-body">
         ${g.editing ? `
@@ -650,44 +642,47 @@ function render(){
               ${impOptions}
             </select>
           </div>
-          <div class="edit-actions">
-            <button class="btn-save" data-action="save-edit">Guardar</button>
-            <button class="btn-cancel" data-action="cancel-edit">Cancelar</button>
-          </div>
         </div>
         ` : ''}
 
-        <div class="section-label">
-          <span>Subtareas</span>
-        </div>
-        ${sortedSubs.map((s, sIdx) => `
-          <div class="subtask" data-sid="${s.id}">
-            ${canReorder !== undefined ? `
-            <div class="sub-reorder">
-              <button class="reorder-btn" data-action="sub-up" ${sIdx===0?'disabled':''}>▲</button>
-              <button class="reorder-btn" data-action="sub-down" ${sIdx===sortedSubs.length-1?'disabled':''}>▼</button>
+        <div class="section-label">Subtareas</div>
+        <div class="subtasks-list" data-gid="${g.id}">
+        ${sortedSubs.map(s => `
+          <div class="subtask-item" data-id="${s.id}">
+            <div class="subtask">
+              <div class="sub-drag-handle" data-drag="sub" title="Arrastrar para reordenar">${GRIP_ICON}</div>
+              <div class="subtask-check ${s.done?'checked':''}" data-action="sub-toggle">${s.done?'✓':''}</div>
+              <div class="subtask-text ${s.done?'checked':''}">${escapeHtml(s.text)}</div>
+              <button class="sub-note-toggle ${s.notes?'has-note':''}" data-action="sub-note-toggle" title="Nota de la subtarea">${PENCIL_ICON}</button>
+              <button class="del-btn" data-action="sub-remove">✕</button>
+            </div>
+            ${s.open ? `
+            <div class="subtask-notes">
+              <textarea placeholder="Nota para esta subtarea…" data-action="sub-notes" data-sid="${s.id}">${escapeHtml(s.notes)}</textarea>
             </div>` : ''}
-            <div class="subtask-check ${s.done?'checked':''}" data-action="sub-toggle">${s.done?'✓':''}</div>
-            <div class="subtask-text ${s.done?'checked':''}">${escapeHtml(s.text)}</div>
-            <button class="sub-note-toggle ${s.notes?'has-note':''}" data-action="sub-note-toggle" title="Notas">📝</button>
-            <button class="del-btn" data-action="sub-remove">✕</button>
           </div>
-          ${s.open ? `
-          <div class="subtask-notes">
-            <textarea placeholder="Nota para esta subtarea…" data-action="sub-notes" data-sid="${s.id}">${escapeHtml(s.notes)}</textarea>
-          </div>` : ''}
         `).join('')}
+        </div>
+        ${g.editing ? `
         <div class="add-sub">
           <input type="text" placeholder="Nueva subtarea…" data-action="sub-input" maxlength="140">
           <button data-action="sub-add">Añadir</button>
         </div>
+        ` : `<div class="add-sub-hint">Entra en "Editar objetivo" para añadir subtareas.</div>`}
 
         <div class="section-label">Notas del objetivo</div>
         <textarea class="notes" placeholder="Escribe una nota para este objetivo…" data-action="notes">${escapeHtml(g.notes)}</textarea>
 
         <div class="goal-footer">
-          <button class="edit-toggle-btn" data-action="toggle-edit">${g.editing ? 'Cerrar edición' : 'Editar objetivo'}</button>
-          <button class="remove-goal" data-action="remove-goal">Eliminar objetivo</button>
+          ${g.editing ? `
+            <div class="edit-footer-actions">
+              <button class="btn-cancel" data-action="cancel-edit">Cancelar</button>
+              <button class="btn-save" data-action="save-edit">Guardar</button>
+            </div>
+          ` : `
+            <button class="edit-toggle-btn" data-action="toggle-edit">Editar objetivo</button>
+            <button class="remove-goal" data-action="remove-goal">Eliminar objetivo</button>
+          `}
         </div>
       </div>
     </div>
@@ -705,30 +700,25 @@ function attachHandlers(){
       el.addEventListener('click', ()=> toggleOpen(gid));
     });
 
-    const moveUp = goalEl.querySelector('[data-action="move-up"]');
-    if(moveUp) moveUp.addEventListener('click', (e)=>{ e.stopPropagation(); moveGoal(gid, -1); });
-    const moveDown = goalEl.querySelector('[data-action="move-down"]');
-    if(moveDown) moveDown.addEventListener('click', (e)=>{ e.stopPropagation(); moveGoal(gid, 1); });
-
     const statusSel = goalEl.querySelector('[data-action="status"]');
     statusSel.addEventListener('click', e=>e.stopPropagation());
     statusSel.addEventListener('change', e=> setStatus(gid, e.target.value));
 
     goalEl.querySelectorAll('[data-action="sub-toggle"]').forEach(el=>{
       el.addEventListener('click', ()=>{
-        const sid = el.closest('.subtask').getAttribute('data-sid');
+        const sid = el.closest('.subtask-item').getAttribute('data-id');
         toggleSubtask(gid, sid);
       });
     });
     goalEl.querySelectorAll('[data-action="sub-remove"]').forEach(el=>{
       el.addEventListener('click', ()=>{
-        const sid = el.closest('.subtask').getAttribute('data-sid');
+        const sid = el.closest('.subtask-item').getAttribute('data-id');
         removeSubtask(gid, sid);
       });
     });
     goalEl.querySelectorAll('[data-action="sub-note-toggle"]').forEach(el=>{
       el.addEventListener('click', ()=>{
-        const sid = el.closest('.subtask').getAttribute('data-sid');
+        const sid = el.closest('.subtask-item').getAttribute('data-id');
         toggleSubtaskNote(gid, sid);
       });
     });
@@ -738,30 +728,25 @@ function attachHandlers(){
         setSubtaskNote(gid, sid, el.value);
       });
     });
-    goalEl.querySelectorAll('[data-action="sub-up"]').forEach(el=>{
-      el.addEventListener('click', ()=>{
-        const sid = el.closest('.subtask').getAttribute('data-sid');
-        moveSubtask(gid, sid, -1);
-      });
-    });
-    goalEl.querySelectorAll('[data-action="sub-down"]').forEach(el=>{
-      el.addEventListener('click', ()=>{
-        const sid = el.closest('.subtask').getAttribute('data-sid');
-        moveSubtask(gid, sid, 1);
-      });
-    });
 
     const subInput = goalEl.querySelector('[data-action="sub-input"]');
-    const subAddBtn = goalEl.querySelector('[data-action="sub-add"]');
-    const doAdd = ()=>{ if(subInput.value.trim()) addSubtask(gid, subInput.value); };
-    subAddBtn.addEventListener('click', doAdd);
-    subInput.addEventListener('keydown', e=>{ if(e.key==='Enter') doAdd(); });
+    if(subInput){
+      const subAddBtn = goalEl.querySelector('[data-action="sub-add"]');
+      const doAdd = ()=>{ if(subInput.value.trim()) addSubtask(gid, subInput.value); };
+      subAddBtn.addEventListener('click', doAdd);
+      subInput.addEventListener('keydown', e=>{ if(e.key==='Enter') doAdd(); });
+    }
 
     const notesEl = goalEl.querySelector('[data-action="notes"]');
     notesEl.addEventListener('input', e=> setNotes(gid, e.target.value));
 
-    goalEl.querySelector('[data-action="remove-goal"]').addEventListener('click', ()=> removeGoal(gid));
-    goalEl.querySelector('[data-action="toggle-edit"]').addEventListener('click', ()=> toggleEdit(gid));
+    const removeBtn = goalEl.querySelector('[data-action="remove-goal"]');
+    if(removeBtn) removeBtn.addEventListener('click', ()=> removeGoal(gid));
+
+    const editToggleBtn = goalEl.querySelector('[data-action="toggle-edit"]');
+    if(editToggleBtn) editToggleBtn.addEventListener('click', ()=> toggleEdit(gid));
+    const cancelBtn = goalEl.querySelector('[data-action="cancel-edit"]');
+    if(cancelBtn) cancelBtn.addEventListener('click', ()=> toggleEdit(gid));
 
     const editForm = goalEl.querySelector('.edit-form');
     if(editForm){
@@ -773,12 +758,86 @@ function attachHandlers(){
           sw.classList.add('selected');
         });
       });
-      editForm.querySelector('[data-action="save-edit"]').addEventListener('click', ()=>{
-        const title = editForm.querySelector('[data-action="edit-title"]').value;
-        const importanceId = editForm.querySelector('[data-action="edit-importance"]').value;
-        saveEdit(gid, title, chosenColor, importanceId);
-      });
-      editForm.querySelector('[data-action="cancel-edit"]').addEventListener('click', ()=> toggleEdit(gid));
+      const saveBtn = goalEl.querySelector('[data-action="save-edit"]');
+      if(saveBtn){
+        saveBtn.addEventListener('click', ()=>{
+          const title = editForm.querySelector('[data-action="edit-title"]').value;
+          const importanceId = editForm.querySelector('[data-action="edit-importance"]').value;
+          saveEdit(gid, title, chosenColor, importanceId);
+        });
+      }
+    }
+  });
+}
+
+/* ---------- Drag & drop reorder (Pointer Events, touch + mouse) ---------- */
+function getDragAfterElement(container, y, itemSelector, draggingEl){
+  const items = [...container.querySelectorAll(itemSelector)].filter(el => el !== draggingEl);
+  let closest = { offset: -Infinity, element: null };
+  for(const child of items){
+    const box = child.getBoundingClientRect();
+    const offset = y - box.top - box.height/2;
+    if(offset < 0 && offset > closest.offset){
+      closest = { offset, element: child };
+    }
+  }
+  return closest.element;
+}
+
+function initDragReorder(){
+  const goalsListEl = document.getElementById('goalsList');
+  let draggingEl = null;
+  let draggingContainer = null;
+  let draggingSelector = null;
+  let onDropCallback = null;
+
+  function startDrag(item, container, itemSelector, onDrop){
+    draggingEl = item;
+    draggingContainer = container;
+    draggingSelector = itemSelector;
+    onDropCallback = onDrop;
+    item.classList.add('dragging');
+    document.addEventListener('pointermove', onMove);
+    document.addEventListener('pointerup', onUp);
+  }
+  function onMove(e){
+    if(!draggingEl) return;
+    const afterElement = getDragAfterElement(draggingContainer, e.clientY, draggingSelector, draggingEl);
+    if(afterElement == null){
+      draggingContainer.appendChild(draggingEl);
+    }else{
+      draggingContainer.insertBefore(draggingEl, afterElement);
+    }
+  }
+  function onUp(){
+    if(!draggingEl) return;
+    draggingEl.classList.remove('dragging');
+    document.removeEventListener('pointermove', onMove);
+    document.removeEventListener('pointerup', onUp);
+    const ids = [...draggingContainer.querySelectorAll(draggingSelector)].map(el => el.getAttribute('data-id'));
+    const cb = onDropCallback;
+    draggingEl = null; draggingContainer = null; draggingSelector = null; onDropCallback = null;
+    cb(ids);
+  }
+
+  goalsListEl.addEventListener('pointerdown', e=>{
+    const subHandle = e.target.closest('[data-drag="sub"]');
+    const goalHandle = !subHandle ? e.target.closest('[data-drag="goal"]') : null;
+
+    if(subHandle){
+      const item = subHandle.closest('.subtask-item');
+      const container = subHandle.closest('.subtasks-list');
+      const gid = container ? container.getAttribute('data-gid') : null;
+      if(item && container && gid){
+        e.preventDefault();
+        startDrag(item, container, '.subtask-item', (ids)=> reorderSubtasksFromDom(gid, ids));
+      }
+    }else if(goalHandle){
+      const item = goalHandle.closest('.goal');
+      if(item){
+        e.preventDefault();
+        startDrag(item, goalsListEl, '.goal', reorderGoalsFromDom);
+      }
     }
   });
 }
@@ -786,21 +845,30 @@ function attachHandlers(){
 /* ---------- Global UI wiring ---------- */
 document.getElementById('addGoalBtn').addEventListener('click', ()=>{
   const input = document.getElementById('newGoalInput');
-  if(input.value.trim()){ addGoal(input.value); input.value=''; }
+  const impSel = document.getElementById('newGoalImportance');
+  if(input.value.trim()){
+    addGoal(input.value, impSel.value);
+    input.value='';
+    impSel.value='';
+  }
 });
 document.getElementById('newGoalInput').addEventListener('keydown', e=>{
   if(e.key==='Enter'){
-    const input = e.target;
-    if(input.value.trim()){ addGoal(input.value); input.value=''; }
+    const impSel = document.getElementById('newGoalImportance');
+    if(e.target.value.trim()){
+      addGoal(e.target.value, impSel.value);
+      e.target.value='';
+      impSel.value='';
+    }
   }
 });
 
-document.getElementById('filters').addEventListener('click', e=>{
-  const btn = e.target.closest('.chip');
-  if(!btn) return;
-  document.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
-  btn.classList.add('active');
-  currentFilter = btn.getAttribute('data-filter');
+document.getElementById('filterStatus').addEventListener('change', e=>{
+  filterStatus = e.target.value;
+  render();
+});
+document.getElementById('filterImportance').addEventListener('change', e=>{
+  filterImportance = e.target.value;
   render();
 });
 
@@ -826,6 +894,7 @@ document.getElementById('impNameInput').addEventListener('keydown', e=>{
   }
 });
 
+initDragReorder();
 loadAll();
 </script>
 </body>
