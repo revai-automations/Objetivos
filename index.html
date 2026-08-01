@@ -75,6 +75,39 @@
   }
   .add-box button:active{transform:scale(0.97);}
 
+  .imp-picker{position:relative;flex:none;display:none;}
+  .imp-picker-btn{
+    width:48px;height:48px;border-radius:12px;background:var(--surface);border:1px solid var(--line);
+    color:var(--muted);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;
+  }
+  .imp-picker-btn:hover{border-color:var(--indigo);}
+  .imp-picker-menu{
+    display:none;position:absolute;top:calc(100% + 6px);right:0;min-width:170px;z-index:20;
+    background:var(--surface-2);border:1px solid var(--line);border-radius:12px;padding:6px;
+    box-shadow:0 8px 24px rgba(0,0,0,0.4);
+  }
+  .imp-picker-menu.show{display:block;}
+  .imp-picker-item{
+    display:flex;align-items:center;gap:8px;padding:9px 10px;border-radius:8px;font-size:13.5px;cursor:pointer;
+  }
+  .imp-picker-item:hover{background:var(--surface-3);}
+  .imp-picker-item .imp-dot{width:10px;height:10px;border-radius:50%;flex:none;}
+
+  .ms-filter{position:relative;flex:0 0 auto;}
+  .ms-trigger{display:flex;align-items:center;gap:6px;}
+  .ms-caret{display:flex;color:var(--muted);}
+  .ms-menu{
+    display:none;position:absolute;top:calc(100% + 6px);left:0;min-width:170px;z-index:20;
+    background:var(--surface-2);border:1px solid var(--line);border-radius:12px;padding:6px;
+    box-shadow:0 8px 24px rgba(0,0,0,0.4);
+  }
+  .ms-menu.show{display:block;}
+  .ms-item{
+    display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:8px;font-size:13px;cursor:pointer;
+  }
+  .ms-item:hover{background:var(--surface-3);}
+  .ms-item input{accent-color:var(--indigo);width:15px;height:15px;flex:none;}
+
   .imp-panel{display:none;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:16px;}
   .imp-panel.show{display:block;}
   .imp-panel-title{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:600;margin-bottom:10px;}
@@ -229,6 +262,11 @@
     .wrap{padding:16px 16px 40px;}
     .subtask-text{white-space:normal;}
     h1{font-size:20px;}
+    .imp-select-desktop{display:none;}
+    .imp-picker-mobile{display:block;}
+    .add-box input[type="text"]{flex:1 1 100%;order:1;}
+    .add-box .imp-picker{order:2;}
+    .add-box button#addGoalBtn{order:3;flex:1;font-size:15px;padding:0 14px;}
   }
   @supports (-webkit-touch-callout: none){
     body{ min-height: -webkit-fill-available; }
@@ -267,17 +305,26 @@
 
   <div class="add-box">
     <input id="newGoalInput" type="text" placeholder="Nuevo objetivo…" maxlength="140">
-    <select id="newGoalImportance"></select>
+    <select id="newGoalImportance" class="imp-select-desktop"></select>
+    <div class="imp-picker imp-picker-mobile" id="newGoalImpPicker">
+      <button type="button" class="imp-picker-btn" id="newGoalImpBtn" title="Importancia">★</button>
+      <div class="imp-picker-menu" id="newGoalImpMenu"></div>
+    </div>
     <button id="addGoalBtn">Añadir</button>
   </div>
 
   <div class="filters-row">
-    <select class="filter-select" id="filterStatus">
-      <option value="todos">Todos los estados</option>
-      <option value="pendiente">Pendiente</option>
-      <option value="en progreso">En progreso</option>
-      <option value="completado">Completado</option>
-    </select>
+    <div class="ms-filter" id="statusFilterWrap">
+      <button type="button" class="filter-select ms-trigger" id="statusFilterBtn">
+        <span id="statusFilterLabel">Todos los estados</span>
+        <span class="ms-caret"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
+      </button>
+      <div class="ms-menu" id="statusFilterMenu">
+        <label class="ms-item"><input type="checkbox" value="pendiente" checked> Pendiente</label>
+        <label class="ms-item"><input type="checkbox" value="en progreso" checked> En progreso</label>
+        <label class="ms-item"><input type="checkbox" value="completado" checked> Completado</label>
+      </div>
+    </div>
     <select class="filter-select" id="filterImportance">
       <option value="todas">Toda importancia</option>
     </select>
@@ -303,6 +350,13 @@ const DEFAULT_GOAL_COLOR = '#6366F1';
 
 const GRIP_ICON = `<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="6" r="1.6"/><circle cx="9" cy="12" r="1.6"/><circle cx="9" cy="18" r="1.6"/><circle cx="15" cy="6" r="1.6"/><circle cx="15" cy="12" r="1.6"/><circle cx="15" cy="18" r="1.6"/></svg>`;
 const PENCIL_ICON = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>`;
+const CHEVRON_ICON = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"></polyline></svg>`;
+
+const STATUS_LABELS = {
+  'pendiente':'Pendiente',
+  'en progreso':'En progreso',
+  'completado':'Completado'
+};
 
 const SYNC_BASE = 'https://revai-automations-n8n.kcyv7p.easypanel.host';
 const SYNC_SAVE_URL = SYNC_BASE + '/webhook/objetivos-save';
@@ -311,8 +365,9 @@ const SYNC_TOKEN = 'AdRVNbQPmXCWpcNxTfeAyRb5HE5OxNfX';
 
 let goals = [];
 let importanceTypes = [];
-let filterStatus = 'todos';
+let filterStatuses = new Set(['pendiente','en progreso','completado']);
 let filterImportance = 'todas';
+let newGoalImportanceId = '';
 let loaded = false;
 let selectedImpColor = IMP_PALETTE[0];
 
@@ -643,6 +698,34 @@ function renderNewGoalImportanceSelect(){
   const sel = document.getElementById('newGoalImportance');
   sel.innerHTML = `<option value="">Sin importancia</option>` +
     importanceTypes.map(t=>`<option value="${t.id}">${escapeHtml(t.name)}</option>`).join('');
+  renderNewGoalImpPickerMenu();
+}
+function renderNewGoalImpPickerMenu(){
+  const menu = document.getElementById('newGoalImpMenu');
+  if(!menu) return;
+  menu.innerHTML = `<div class="imp-picker-item" data-value="">Sin importancia</div>` +
+    importanceTypes.map(t=>`<div class="imp-picker-item" data-value="${t.id}"><span class="imp-dot" style="background:${t.color}"></span>${escapeHtml(t.name)}</div>`).join('');
+  menu.querySelectorAll('.imp-picker-item').forEach(item=>{
+    item.addEventListener('click', ()=>{
+      newGoalImportanceId = item.getAttribute('data-value');
+      const sel = document.getElementById('newGoalImportance');
+      if(sel) sel.value = newGoalImportanceId;
+      updateNewGoalImpBtnVisual();
+      menu.classList.remove('show');
+    });
+  });
+}
+function updateNewGoalImpBtnVisual(){
+  const btn = document.getElementById('newGoalImpBtn');
+  if(!btn) return;
+  const imp = getImportance(newGoalImportanceId);
+  if(imp){
+    btn.style.color = imp.color;
+    btn.style.borderColor = imp.color;
+  }else{
+    btn.style.color = '';
+    btn.style.borderColor = '';
+  }
 }
 function renderFilterImportanceSelect(){
   const sel = document.getElementById('filterImportance');
@@ -652,6 +735,17 @@ function renderFilterImportanceSelect(){
   const stillExists = prevValue==='todas' || prevValue==='__none__' || importanceTypes.some(t=>t.id===prevValue);
   sel.value = stillExists ? prevValue : 'todas';
   filterImportance = sel.value;
+}
+function updateStatusFilterLabel(){
+  const label = document.getElementById('statusFilterLabel');
+  if(!label) return;
+  if(filterStatuses.size === 3){
+    label.textContent = 'Todos los estados';
+  }else if(filterStatuses.size === 0){
+    label.textContent = 'Ningún estado';
+  }else{
+    label.textContent = [...filterStatuses].map(s=>STATUS_LABELS[s]).join(', ');
+  }
 }
 
 /* ---------- Render: goals ---------- */
@@ -665,9 +759,9 @@ function render(){
 
   normalizeOrders();
   const sortedGoals = [...goals].sort((a,b)=>(a.order||0)-(b.order||0));
-  const unfiltered = filterStatus === 'todos' && filterImportance === 'todas';
+  const unfiltered = filterStatuses.size === 3 && filterImportance === 'todas';
   const filtered = sortedGoals.filter(g=>{
-    const statusOk = filterStatus === 'todos' || g.status === filterStatus;
+    const statusOk = filterStatuses.has(g.status);
     const impOk = filterImportance === 'todas' ? true :
       filterImportance === '__none__' ? !g.importanceId :
       g.importanceId === filterImportance;
@@ -722,7 +816,7 @@ function render(){
           <option value="en progreso" ${g.status==='en progreso'?'selected':''}>En progreso</option>
           <option value="completado" ${g.status==='completado'?'selected':''}>Completado</option>
         </select>
-        <div class="chevron" data-action="toggle">▶</div>
+        <div class="chevron" data-action="toggle">${CHEVRON_ICON}</div>
       </div>
       <div class="goal-body">
         ${g.editing ? `
@@ -931,29 +1025,61 @@ function initDragReorder(){
 }
 
 /* ---------- Global UI wiring ---------- */
+function resetNewGoalImportance(){
+  newGoalImportanceId = '';
+  const sel = document.getElementById('newGoalImportance');
+  if(sel) sel.value = '';
+  updateNewGoalImpBtnVisual();
+}
 document.getElementById('addGoalBtn').addEventListener('click', ()=>{
   const input = document.getElementById('newGoalInput');
-  const impSel = document.getElementById('newGoalImportance');
   if(input.value.trim()){
-    addGoal(input.value, impSel.value);
+    addGoal(input.value, newGoalImportanceId);
     input.value='';
-    impSel.value='';
+    resetNewGoalImportance();
   }
 });
 document.getElementById('newGoalInput').addEventListener('keydown', e=>{
   if(e.key==='Enter'){
-    const impSel = document.getElementById('newGoalImportance');
     if(e.target.value.trim()){
-      addGoal(e.target.value, impSel.value);
+      addGoal(e.target.value, newGoalImportanceId);
       e.target.value='';
-      impSel.value='';
+      resetNewGoalImportance();
     }
   }
 });
+document.getElementById('newGoalImportance').addEventListener('change', e=>{
+  newGoalImportanceId = e.target.value;
+  updateNewGoalImpBtnVisual();
+});
+document.getElementById('newGoalImpBtn').addEventListener('click', (e)=>{
+  e.stopPropagation();
+  document.getElementById('newGoalImpMenu').classList.toggle('show');
+});
+document.addEventListener('click', e=>{
+  const picker = document.getElementById('newGoalImpPicker');
+  const menu = document.getElementById('newGoalImpMenu');
+  if(picker && menu && !picker.contains(e.target)){
+    menu.classList.remove('show');
+  }
+  const statusWrap = document.getElementById('statusFilterWrap');
+  const statusMenu = document.getElementById('statusFilterMenu');
+  if(statusWrap && statusMenu && !statusWrap.contains(e.target)){
+    statusMenu.classList.remove('show');
+  }
+});
 
-document.getElementById('filterStatus').addEventListener('change', e=>{
-  filterStatus = e.target.value;
-  render();
+document.getElementById('statusFilterBtn').addEventListener('click', (e)=>{
+  e.stopPropagation();
+  document.getElementById('statusFilterMenu').classList.toggle('show');
+});
+document.querySelectorAll('#statusFilterMenu input[type="checkbox"]').forEach(cb=>{
+  cb.addEventListener('change', ()=>{
+    if(cb.checked) filterStatuses.add(cb.value);
+    else filterStatuses.delete(cb.value);
+    updateStatusFilterLabel();
+    render();
+  });
 });
 document.getElementById('filterImportance').addEventListener('change', e=>{
   filterImportance = e.target.value;
