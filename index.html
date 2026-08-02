@@ -149,8 +149,12 @@
   .goal{
     background:var(--surface);border:1px solid var(--line);border-radius:16px;margin-bottom:12px;
     overflow:hidden;border-left:3px solid var(--goal-color, var(--indigo));
+    transition:transform 0.25s cubic-bezier(.34,1.56,.64,1), box-shadow 0.2s ease;
   }
-  .goal.dragging{opacity:0.55;box-shadow:0 8px 20px rgba(0,0,0,0.4);}
+  .goal.dragging{
+    opacity:0.97;transform:scale(1.045);box-shadow:0 14px 30px rgba(0,0,0,0.5);
+    position:relative;z-index:30;
+  }
   .goal-head{display:flex;align-items:center;gap:10px;padding:14px 14px;}
   .drag-handle{
     flex:none;color:var(--muted);cursor:grab;touch-action:none;user-select:none;
@@ -202,8 +206,8 @@
   }
 
   .subtasks-list{}
-  .subtask-item{}
-  .subtask-item.dragging{opacity:0.55;}
+  .subtask-item{transition:transform 0.25s cubic-bezier(.34,1.56,.64,1);}
+  .subtask-item.dragging{transform:scale(1.03);position:relative;z-index:30;}
   .subtask{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--line);}
   .subtask-item:last-child .subtask{border-bottom:none;}
   .sub-drag-handle{flex:none;color:var(--muted);cursor:grab;touch-action:none;user-select:none;display:flex;align-items:center;padding:2px;}
@@ -334,6 +338,9 @@
     <select class="filter-select" id="filterImportance">
       <option value="todas">Toda importancia</option>
     </select>
+    <button type="button" class="icon-btn" id="sortGoalsBtn" title="Ordenar por subtareas completadas">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="14" y2="6"/><line x1="3" y1="11" x2="11" y2="11"/><line x1="3" y1="16" x2="8" y2="16"/><line x1="3" y1="21" x2="5" y2="21"/><line x1="19" y1="20" x2="19" y2="5"/><polyline points="15 9 19 5 23 9"></polyline></svg>
+    </button>
   </div>
 
   <div class="order-hint" id="orderHint">Mantén pulsado ⠿ y arrastra para reordenar.</div>
@@ -557,6 +564,14 @@ function setNotes(id, val){
 function normalizeOrders(){
   goals.sort((a,b)=>(a.order||0)-(b.order||0));
   goals.forEach((g,i)=>g.order=i);
+}
+function autoSortGoals(){
+  const doneCount = g => g.subtasks.filter(s=>s.done).length;
+  const notDone = goals.filter(g=>g.status!=='completado');
+  const done = goals.filter(g=>g.status==='completado');
+  notDone.sort((a,b)=> doneCount(b) - doneCount(a));
+  done.sort((a,b)=> doneCount(b) - doneCount(a));
+  [...notDone, ...done].forEach((g,i)=> g.order = i);
 }
 function reorderGoalsFromDom(ids){
   ids.forEach((id, idx)=>{
@@ -978,6 +993,28 @@ function initDragReorder(){
   let draggingContainer = null;
   let draggingSelector = null;
   let onDropCallback = null;
+  let lastPointerY = 0;
+  let autoScrollRAF = null;
+
+  const EDGE_ZONE = 90;
+  const MAX_SPEED = 16;
+
+  function autoScrollStep(){
+    if(!draggingEl){ autoScrollRAF = null; return; }
+    const vh = window.innerHeight;
+    let dy = 0;
+    if(lastPointerY < EDGE_ZONE){
+      const strength = (EDGE_ZONE - lastPointerY) / EDGE_ZONE;
+      dy = -MAX_SPEED * strength;
+    }else if(lastPointerY > vh - EDGE_ZONE){
+      const strength = (lastPointerY - (vh - EDGE_ZONE)) / EDGE_ZONE;
+      dy = MAX_SPEED * strength;
+    }
+    if(dy !== 0){
+      window.scrollBy(0, dy);
+    }
+    autoScrollRAF = requestAnimationFrame(autoScrollStep);
+  }
 
   function startDrag(item, container, itemSelector, onDrop){
     draggingEl = item;
@@ -987,9 +1024,11 @@ function initDragReorder(){
     item.classList.add('dragging');
     document.addEventListener('pointermove', onMove);
     document.addEventListener('pointerup', onUp);
+    if(!autoScrollRAF) autoScrollRAF = requestAnimationFrame(autoScrollStep);
   }
   function onMove(e){
     if(!draggingEl) return;
+    lastPointerY = e.clientY;
     const afterElement = getDragAfterElement(draggingContainer, e.clientY, draggingSelector, draggingEl);
     if(afterElement == null){
       draggingContainer.appendChild(draggingEl);
@@ -1011,6 +1050,7 @@ function initDragReorder(){
   goalsListEl.addEventListener('pointerdown', e=>{
     const subHandle = e.target.closest('[data-drag="sub"]');
     const goalHandle = !subHandle ? e.target.closest('[data-drag="goal"]') : null;
+    lastPointerY = e.clientY;
 
     if(subHandle){
       const item = subHandle.closest('.subtask-item');
@@ -1089,6 +1129,11 @@ document.querySelectorAll('#statusFilterMenu input[type="checkbox"]').forEach(cb
 });
 document.getElementById('filterImportance').addEventListener('change', e=>{
   filterImportance = e.target.value;
+  render();
+});
+document.getElementById('sortGoalsBtn').addEventListener('click', ()=>{
+  autoSortGoals();
+  saveGoals();
   render();
 });
 
