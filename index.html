@@ -93,9 +93,9 @@
   .imp-picker-item:hover{background:var(--surface-3);}
   .imp-picker-item .imp-dot{width:10px;height:10px;border-radius:50%;flex:none;}
 
-  .ms-filter{position:relative;flex:0 0 auto;}
-  .ms-trigger{display:flex;align-items:center;gap:6px;}
-  .ms-caret{display:flex;color:var(--muted);}
+  .ms-filter{position:relative;flex:1;min-width:0;}
+  .ms-trigger{display:flex;align-items:center;gap:6px;min-width:0;}
+  .ms-caret{display:flex;color:var(--muted);flex:none;}
   .ms-menu{
     display:none;position:absolute;top:calc(100% + 6px);left:0;min-width:170px;z-index:20;
     background:var(--surface-2);border:1px solid var(--line);border-radius:12px;padding:6px;
@@ -127,14 +127,15 @@
   .swatch.selected{border-color:var(--text);}
   .imp-add button{background:var(--surface-3);border:1px solid var(--line);color:var(--cyan);padding:8px 12px;border-radius:9px;font-size:13px;cursor:pointer;flex:none;}
 
-  .filters-row{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;}
+  .filters-row{display:flex;gap:8px;margin-bottom:14px;align-items:center;}
   .filter-select{
-    flex:0 0 auto;width:auto;background:var(--surface);border:1px solid var(--line);color:var(--text);
+    flex:1;width:100%;min-width:0;background:var(--surface);border:1px solid var(--line);color:var(--text);
     padding:8px 30px 8px 14px;border-radius:999px;font-size:12.5px;font-family:'Inter',sans-serif;
     -webkit-appearance:none;appearance:none;
     background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%238B93A6' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
     background-repeat:no-repeat;
     background-position:right 12px center;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
   }
   .filter-select:focus{outline:none;border-color:var(--indigo);}
   .filter-select:hover{border-color:var(--indigo);}
@@ -143,6 +144,8 @@
     padding:8px 12px;
     justify-content:space-between;
   }
+  #statusFilterLabel{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;}
+  #sortGoalsBtn{flex:none;}
 
   .order-hint{font-size:11.5px;color:var(--muted);margin-bottom:14px;display:flex;align-items:center;gap:6px;}
 
