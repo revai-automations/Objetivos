@@ -284,10 +284,67 @@
   @supports (-webkit-touch-callout: none){
     body{ min-height: -webkit-fill-available; }
   }
+  .auth-screen{
+    position:fixed;inset:0;background:var(--bg);z-index:100;
+    display:flex;align-items:center;justify-content:center;padding:24px;
+    padding-top:calc(24px + env(safe-area-inset-top, 0px));
+    padding-bottom:calc(24px + env(safe-area-inset-bottom, 0px));
+  }
+  .auth-card{width:100%;max-width:360px;}
+  .auth-tabs{display:flex;gap:6px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:4px;margin-bottom:18px;}
+  .auth-tab{
+    flex:1;background:none;border:none;color:var(--muted);padding:10px;border-radius:9px;
+    font-size:13.5px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;
+  }
+  .auth-tab.active{background:var(--indigo-dim);color:white;}
+  .auth-form{display:flex;flex-direction:column;gap:10px;}
+  .auth-form input{
+    background:var(--surface);border:1px solid var(--line);color:var(--text);
+    padding:13px 14px;border-radius:12px;font-size:16px;font-family:'Inter',sans-serif;width:100%;
+  }
+  .auth-form input:focus{outline:none;border-color:var(--indigo);}
+  .auth-submit{
+    background:var(--indigo-dim);border:none;color:white;padding:13px;border-radius:12px;
+    font-size:14.5px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;margin-top:4px;
+  }
+  .auth-submit:disabled{opacity:0.6;}
+  .auth-error{
+    background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.35);color:#F87171;
+    font-size:13px;padding:10px 12px;border-radius:10px;margin-bottom:14px;text-align:center;
+  }
 </style>
 </head>
 <body>
-<div class="wrap">
+
+<div class="auth-screen" id="authScreen">
+  <div class="auth-card">
+    <div class="brand" style="justify-content:center;margin-bottom:18px;">
+      <div class="mark"></div>
+      <h1>Objetivos</h1>
+    </div>
+
+    <div class="auth-tabs">
+      <button class="auth-tab active" id="tabLoginBtn" type="button">Iniciar sesión</button>
+      <button class="auth-tab" id="tabRegisterBtn" type="button">Crear cuenta</button>
+    </div>
+
+    <div class="auth-error" id="authError" style="display:none;"></div>
+
+    <form id="loginForm" class="auth-form">
+      <input type="text" id="loginUsername" placeholder="Nombre de usuario" autocomplete="username" required>
+      <input type="password" id="loginPassword" placeholder="Contraseña" autocomplete="current-password" required>
+      <button type="submit" class="auth-submit" id="loginSubmitBtn">Entrar</button>
+    </form>
+
+    <form id="registerForm" class="auth-form" style="display:none;">
+      <input type="text" id="registerUsername" placeholder="Elige un nombre de usuario" autocomplete="username" required>
+      <input type="password" id="registerPassword" placeholder="Elige una contraseña" autocomplete="new-password" required>
+      <button type="submit" class="auth-submit" id="registerSubmitBtn">Crear cuenta</button>
+    </form>
+  </div>
+</div>
+
+<div class="wrap" id="appWrap" style="display:none;">
   <header>
     <div class="brand">
       <div class="mark"></div>
@@ -296,6 +353,9 @@
     <div class="header-right">
       <div class="count" id="countLabel">—</div>
       <button class="icon-btn" id="impToggleBtn" title="Gestionar importancias">★</button>
+      <button class="icon-btn" id="logoutBtn" title="Cerrar sesión">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      </button>
     </div>
   </header>
 
@@ -357,8 +417,7 @@
 </div>
 
 <script>
-const STORAGE_KEY = 'objetivos_app_data_v1';
-const IMP_KEY = 'objetivos_importance_types_v1';
+const SESSION_KEY = 'objetivos_session_username';
 
 const PALETTE = ['#6366F1','#22D3EE','#34D399','#FBBF24','#FB7185','#A78BFA','#38BDF8','#94A3B8'];
 const IMP_PALETTE = ['#F87171','#FBBF24','#34D399','#38BDF8','#A78BFA','#94A3B8'];
@@ -377,8 +436,11 @@ const STATUS_LABELS = {
 const SYNC_BASE = 'https://revai-automations-n8n.kcyv7p.easypanel.host';
 const SYNC_SAVE_URL = SYNC_BASE + '/webhook/objetivos-save';
 const SYNC_LOAD_URL = SYNC_BASE + '/webhook/objetivos-load';
+const AUTH_LOGIN_URL = SYNC_BASE + '/webhook/objetivos-login';
+const AUTH_REGISTER_URL = SYNC_BASE + '/webhook/objetivos-register';
 const SYNC_TOKEN = 'AdRVNbQPmXCWpcNxTfeAyRb5HE5OxNfX';
 
+let currentUsername = null;
 let goals = [];
 let importanceTypes = [];
 let filterStatuses = new Set(['pendiente','en progreso','completado']);
@@ -386,6 +448,9 @@ let filterImportance = 'todas';
 let newGoalImportanceId = '';
 let loaded = false;
 let selectedImpColor = IMP_PALETTE[0];
+
+function storageKeyFor(user){ return 'objetivos_app_data_v1__' + user; }
+function impKeyFor(user){ return 'objetivos_importance_types_v1__' + user; }
 
 function uid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
 
@@ -398,7 +463,8 @@ function seedImportance(){
 }
 
 async function loadFromRemote(){
-  const res = await fetch(SYNC_LOAD_URL, {
+  const url = SYNC_LOAD_URL + '?username=' + encodeURIComponent(currentUsername);
+  const res = await fetch(url, {
     headers: { 'X-Sync-Token': SYNC_TOKEN }
   });
   if(!res.ok) throw new Error('load failed: ' + res.status);
@@ -416,7 +482,7 @@ async function saveToRemote(payloadObj){
       'Content-Type': 'application/json',
       'X-Sync-Token': SYNC_TOKEN
     },
-    body: JSON.stringify({ payload: JSON.stringify(payloadObj) })
+    body: JSON.stringify({ username: currentUsername, payload: JSON.stringify(payloadObj) })
   });
   if(!res.ok) throw new Error('save failed: ' + res.status);
   return true;
@@ -438,14 +504,14 @@ function scheduleRemoteSync(){
 
 function loadAll(){
   try{
-    const rawGoals = localStorage.getItem(STORAGE_KEY);
+    const rawGoals = localStorage.getItem(storageKeyFor(currentUsername));
     goals = rawGoals ? JSON.parse(rawGoals) : [];
   }catch(e){
     console.error('Error cargando objetivos locales', e);
     goals = [];
   }
   try{
-    const rawImp = localStorage.getItem(IMP_KEY);
+    const rawImp = localStorage.getItem(impKeyFor(currentUsername));
     importanceTypes = rawImp ? JSON.parse(rawImp) : seedImportance();
   }catch(e){
     importanceTypes = seedImportance();
@@ -464,8 +530,8 @@ function loadAll(){
       importanceTypes = (remote.importanceTypes && remote.importanceTypes.length) ? remote.importanceTypes : seedImportance();
       normalizeLoadedData();
       try{
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(goals));
-        localStorage.setItem(IMP_KEY, JSON.stringify(importanceTypes));
+        localStorage.setItem(storageKeyFor(currentUsername), JSON.stringify(goals));
+        localStorage.setItem(impKeyFor(currentUsername), JSON.stringify(importanceTypes));
       }catch(e){}
       renderImportancePanel();
       renderNewGoalImportanceSelect();
@@ -507,7 +573,7 @@ function saveGoals(){
   clearTimeout(saveTimer);
   saveTimer = setTimeout(()=>{
     try{
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(goals));
+      localStorage.setItem(storageKeyFor(currentUsername), JSON.stringify(goals));
     }catch(e){
       console.error('Error guardando localmente', e);
       showSaveBanner(true, 'No se pudo guardar en este dispositivo (almacenamiento lleno o modo privado).');
@@ -516,7 +582,7 @@ function saveGoals(){
   }, 200);
 }
 function saveImportance(){
-  try{ localStorage.setItem(IMP_KEY, JSON.stringify(importanceTypes)); }
+  try{ localStorage.setItem(impKeyFor(currentUsername), JSON.stringify(importanceTypes)); }
   catch(e){ console.error('Error guardando importancias localmente', e); }
   scheduleRemoteSync();
 }
@@ -1162,8 +1228,129 @@ document.getElementById('impNameInput').addEventListener('keydown', e=>{
   }
 });
 
+/* ---------- Auth ---------- */
+function showAuthScreen(){
+  document.getElementById('authScreen').style.display = 'flex';
+  document.getElementById('appWrap').style.display = 'none';
+}
+function showApp(){
+  document.getElementById('authScreen').style.display = 'none';
+  document.getElementById('appWrap').style.display = 'block';
+}
+function showAuthError(msg){
+  const el = document.getElementById('authError');
+  el.textContent = msg;
+  el.style.display = 'block';
+}
+function clearAuthError(){
+  const el = document.getElementById('authError');
+  el.style.display = 'none';
+  el.textContent = '';
+}
+function setAuthLoading(loading){
+  document.getElementById('loginSubmitBtn').disabled = loading;
+  document.getElementById('registerSubmitBtn').disabled = loading;
+}
+
+function startSessionFor(username){
+  currentUsername = username;
+  try{ localStorage.setItem(SESSION_KEY, username); }catch(e){}
+  loaded = false;
+  showApp();
+  loadAll();
+}
+
+document.getElementById('tabLoginBtn').addEventListener('click', ()=>{
+  document.getElementById('tabLoginBtn').classList.add('active');
+  document.getElementById('tabRegisterBtn').classList.remove('active');
+  document.getElementById('loginForm').style.display = 'flex';
+  document.getElementById('registerForm').style.display = 'none';
+  clearAuthError();
+});
+document.getElementById('tabRegisterBtn').addEventListener('click', ()=>{
+  document.getElementById('tabRegisterBtn').classList.add('active');
+  document.getElementById('tabLoginBtn').classList.remove('active');
+  document.getElementById('registerForm').style.display = 'flex';
+  document.getElementById('loginForm').style.display = 'none';
+  clearAuthError();
+});
+
+document.getElementById('loginForm').addEventListener('submit', async (e)=>{
+  e.preventDefault();
+  clearAuthError();
+  const username = document.getElementById('loginUsername').value.trim();
+  const password = document.getElementById('loginPassword').value;
+  if(!username || !password) return;
+  setAuthLoading(true);
+  try{
+    const res = await fetch(AUTH_LOGIN_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Sync-Token': SYNC_TOKEN },
+      body: JSON.stringify({ username, password })
+    });
+    const data = await res.json();
+    if(data && data.ok){
+      startSessionFor(data.username || username);
+    }else{
+      showAuthError((data && data.error) || 'No se pudo iniciar sesión.');
+    }
+  }catch(err){
+    console.error(err);
+    showAuthError('No se pudo conectar con el servidor. Revisa tu conexión.');
+  }
+  setAuthLoading(false);
+});
+
+document.getElementById('registerForm').addEventListener('submit', async (e)=>{
+  e.preventDefault();
+  clearAuthError();
+  const username = document.getElementById('registerUsername').value.trim();
+  const password = document.getElementById('registerPassword').value;
+  if(!username || !password) return;
+  if(password.length < 4){
+    showAuthError('La contraseña debe tener al menos 4 caracteres.');
+    return;
+  }
+  setAuthLoading(true);
+  try{
+    const res = await fetch(AUTH_REGISTER_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Sync-Token': SYNC_TOKEN },
+      body: JSON.stringify({ username, password })
+    });
+    const data = await res.json();
+    if(data && data.ok){
+      startSessionFor(username);
+    }else{
+      showAuthError((data && data.error) || 'No se pudo crear la cuenta.');
+    }
+  }catch(err){
+    console.error(err);
+    showAuthError('No se pudo conectar con el servidor. Revisa tu conexión.');
+  }
+  setAuthLoading(false);
+});
+
+document.getElementById('logoutBtn').addEventListener('click', ()=>{
+  try{ localStorage.removeItem(SESSION_KEY); }catch(e){}
+  currentUsername = null;
+  goals = [];
+  importanceTypes = [];
+  loaded = false;
+  document.getElementById('loginUsername').value = '';
+  document.getElementById('loginPassword').value = '';
+  showAuthScreen();
+});
+
+/* ---------- Bootstrap ---------- */
 initDragReorder();
-loadAll();
+let savedUsername = null;
+try{ savedUsername = localStorage.getItem(SESSION_KEY); }catch(e){}
+if(savedUsername){
+  startSessionFor(savedUsername);
+}else{
+  showAuthScreen();
+}
 </script>
 </body>
 </html>
